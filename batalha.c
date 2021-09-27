@@ -16,22 +16,17 @@ int afundados = 0;
 int ultimoTiro = 0;
 int linha, coluna;
 
-void fillWithZeros() {
+// Preenche matriz de navios e matriz de tiros
+void fillMatrixes() {
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 10; j++) {
       shipMatrix[i][j] = 0;
-    }
-  }
-}
-
-void fillWithZerosShot() {
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 10; j++) {
       shotMatrix[i][j] = '-';
     }
   }
 }
 
+// Printa a matriz de navio na tela
 void printShipMatrix() {
   printf("\n- 0 1 2 3 4 5 6 7 8 9\n");
   for (int i = 0; i < 10; i++) {
@@ -43,6 +38,7 @@ void printShipMatrix() {
   }
 }
 
+// Printa a matriz de tiros na tela
 void printShotMatrix() {
   printf("\n- 0 1 2 3 4 5 6 7 8 9\n");
   for (int i = 0; i < 10; i++) {
@@ -54,6 +50,7 @@ void printShotMatrix() {
   }
 }
 
+// Pede informações de navio para a inicialização do jogo
 void getShipInfo() {
   // prompt user for number of ships
   printf("\nNumero de navios: ");
@@ -69,21 +66,22 @@ void getShipInfo() {
     printf("Coluna inicial: %d\n", coluna_inicial);
 
 
-    bool dispok = true;
+    int isDisposicaoOk = 0;
+
     if (linha_inicial > 10 || coluna_inicial > 10) {
       printf("\nPosicao invalida!\n");
-      dispok = false;
+      isDisposicaoOk++;
     }
 
     if (disposicao == 0) {
       if (coluna_inicial + comprimento > 10) {
         printf("\nValores fora do limite!\n");
-        dispok = false;
+        isDisposicaoOk++;
       }
     } else {
       if (linha_inicial + comprimento > 10) {
         printf("\nValores fora do limite!\n");
-        dispok = false;
+        isDisposicaoOk++;
       }
     }
 
@@ -92,18 +90,17 @@ void getShipInfo() {
       if (disposicao == 0) {
         if (shipMatrix[linha_inicial][coluna_inicial + j] != 0) {
           printf("\nNavio colidido!\n");
-          dispok = false;
+          isDisposicaoOk++;
         }
       } else {
         if (shipMatrix[linha_inicial + j][coluna_inicial] != 0) {
           printf("\nNavio colidido!\n");
-          dispok = false;
+          isDisposicaoOk++;
         }
       }
     }
 
-    // check if ship is horizontal or vertical
-    if(dispok == true) {
+    if(isDisposicaoOk > 0) {
       if (disposicao == 1) {
         // vertical
         for (int j = 0; j < comprimento; j++) {
@@ -140,11 +137,96 @@ void printRecordes() {
   printf("\n");
 }
 
-int main() {
-  fillWithZeros();
-  fillWithZerosShot();
+void newShot() {
+  printf("\nDigite a linha e coluna do tiro: \n");
+  scanf("%d %d", &linha, &coluna);
 
-  int opcao = 0;
+  int count = 0;
+
+  // check if shot is valid
+  if (linha > 9 || coluna > 9) {
+    printf("\nPosicao invalida!\n");
+    count++;
+  }
+
+  // check if shot is already taken
+  if (shotMatrix[linha][coluna] != '-') {
+    printf("\nPosicao ja atingida!\n");
+    count++;
+  }
+
+  if (count == 0) {
+    // Verifica se errou ou acertou
+    if (shipMatrix[linha][coluna] != 0) {
+      // hit
+      // Marca o tiro com um 'o'
+      shotMatrix[linha][coluna] = 'o';
+      printf("\nAcertou!\n");
+      acertos++;
+    } else {
+      // miss
+      // Marca o tiro com um 'x'
+      shotMatrix[linha][coluna] = 'x';
+      printf("\nErrou!\n");
+    }
+    tiros++; // Incrementa o numero de tiros
+  }
+}
+
+checkIfSunk() {
+
+  // check if ship is sunk
+  for (int i = 0; i < 10; i++) {
+    for (int j = 0; j < 10; j++) {
+      if (shipMatrix[i][j] != 0) {
+        return false;
+      }
+    }
+  }
+
+
+
+
+  // check if the ship was sunk
+  // if (shipMatrix[linha][coluna] != 0) {
+  //   // check if the ship was sunk
+  //   int shipId = shipMatrix[linha][coluna];
+  //   int shipLength = 0;
+  //   int shipRow = 0;
+  //   int shipCol = 0;
+
+  //   // check if the ship is horizontal
+  //   for (int i = 0; i < 10; i++) {
+  //     if (shipMatrix[linha][i] == shipId) {
+  //       shipLength++;
+  //       shipCol = i;
+  //     }
+  //   }
+
+  //   if (shipLength == comprimento) {
+  //     // horizontal
+  //     for (int i = 0; i < comprimento; i++) {
+  //       shipMatrix[linha][shipCol + i] = 0;
+  //     }
+  //   } else {
+  //     // vertical
+  //     for (int i = 0; i < 10; i++) {
+  //       if (shipMatrix[i][coluna] == shipId) {
+  //         shipLength++;
+  //         shipRow = i;
+  //       }
+  //     }
+  //   }
+  // } else {
+  //   // ship was not sunk
+  //   afundados++;
+  // }
+}
+
+int main() {
+  fillMatrixes();
+
+  int opcao = 222;
 
   printf("\n 🚢 Batalha Naval 🚢 \n");
 
@@ -162,9 +244,9 @@ int main() {
     switch (opcao) {
       case 1:
         // reiniciar o jogo
-        fillWithZeros();
-        fillWithZerosShot();
+        fillMatrixes();
         printf("\nMatriz reiniciada!\n");
+        getShipInfo();
         break;
       case 2:
         // mostrar o estado atual da matriz de navios
@@ -175,24 +257,7 @@ int main() {
 
       case 3:
         // jogar uma nova jogada
-        printf("\nDigite a linha e coluna do tiro: \n");
-        scanf("%d %d", &linha, &coluna);
-
-        // check if the shot is a hit or miss
-        if (shipMatrix[linha][coluna] != 0) {
-          // hit
-          // mark the shot in the matrix with an 'o'
-          shotMatrix[linha][coluna] = 'o';
-          printf("\nAcertou!\n");
-          acertos++;
-        } else {
-          // miss
-          // mark the shot in the matrix with a 'x'
-          shotMatrix[linha][coluna] = 'x';
-          printf("\nErrou!\n");
-        }
-
-        tiros++;
+        newShot();
         break;
 
       default:
