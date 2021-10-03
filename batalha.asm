@@ -24,11 +24,43 @@
 # b) O navio extrapola as dimensões da matriz. Exemplo: 0 4 9 2
 # c) Ocorre sobreposição nos navios. Exemplo 0 4 2 2 e 1 3 0 3
 
-# ✅ 1) a situação atual da matriz de jogo;
+# ❌ 1) a situação atual da matriz de jogo;
 # ❌ 2) a quantidade de tiros já disparados, a quantidade de tiros que acertaram o alvo, a quantidade de barcos já afundados e a
 #   posição do último tiro disparado e;
 # ❌ 3) os recordes do jogo que consiste no menor número de tiros para afundar todas as embarcações de algum jogo anterior.
 
+
+####################################################
+# AO = valores temporários para leitura
+# A1 = Máx embarcações
+# A2 = Contador de Tiros
+# A3 = Contador acertos
+# A4 = Contador afundados
+# A5 =
+# A6 =
+# A7 = valores temporários para leitura
+
+# T0 = Inicio Contador / Menu 1
+# T1 = Disposição / Menu 2
+# T2 = Comprimento / Menu 3
+# T3 = Linha / Menu 4
+# T4 = Coluna
+# T5 = Registrador para comparação
+# T6 =
+
+# S0 = Início contador
+# S1 = Matriz Batalha
+# S2 = 
+# S3 =
+# S4 = 
+# S5 =
+# S6 = 
+# S7 = 
+# S8 =
+# S9 =
+# S10 = Linha
+# S11 =	Coluna
+####################################################
 
 	.data
 matriz_batalha:				.space	324
@@ -108,14 +140,14 @@ loop:
 
 perguntas:
 	pergunta_disposicao:
-		addi a1, zero, 1 				# Máximo disposição
+		addi t5, zero, 1 				# Máximo disposição
 		la a0, msg_disposicao 	# Carrega mensagem disposicao navio
 		li a7, 4								# Imprime msg
 		ecall
 		addi a7, zero, 5 				# Le valor inserido pelo usuario
 		ecall
 		add t1, zero, a0				# T1 = Disposicao
-		bgt t1, a1, erro_disposicao
+		bgt t1, t5, erro_disposicao
 	
 	pergunta_comprimento:
 		la a0, msg_comprimento 	# Carrega mensagem comprimento navio
@@ -126,14 +158,14 @@ perguntas:
 		add t2, zero, a0 				# T2 = Comprimento
 
 	pergunta_linha:
-		addi a1, zero, 9 				# Máximo linha e coluna
+		addi t5, zero, 9 				# Máximo linha e coluna
 		la a0, msg_linha 				# Carrega mensagem linha navio
 		li a7, 4								# Imprime msg
 		ecall
 		addi a7, zero, 5 				# Le valor inserido pelo usuario
 		ecall
 		add t3, zero, a0 				# T3 = Linha
-		bgt t3, a1, erro_linha 	# erro
+		bgt t3, t5, erro_linha 	# erro
 
 	pergunta_coluna:
 		la a0, msg_coluna 			# Carrega mensagem coluna navio
@@ -142,11 +174,11 @@ perguntas:
 		addi a7, zero, 5 				# Le valor inserido pelo usuario
 		ecall	
 		add t4, zero, a0 				# T4 = Linha
-		bgt t4, a1, erro_coluna	# erro
-	
+		bgt t4, t5, erro_coluna	# erro
+
 insere_embarcacoes:
-	addi a1, zero, 1
-	beq t1, a1, navio_vertical
+	addi t5, zero, 1					# Valor para comparação
+	beq t1, t5, navio_vertical
 	beq t1, zero, navio_horizontal
 
 navio_horizontal:
@@ -182,12 +214,12 @@ erro_disposicao:
 	li, a7, 4
 	ecall
 	j pergunta_disposicao
-	
+
 inicializa:
-	addi a1, zero, 0					# Contador de tiros
-	addi a2, zero, 0					# Contador acertos
-	addi a3, zero, 0					# Contador afundados
-	
+	addi a2, zero, 0					# Contador de tiros
+	addi a3, zero, 0					# Contador acertos
+	addi a4, zero, 0					# Contador afundados
+
 	# la	a6, matriz_batalha	# Carrega o endereço da matriz campo em a6
 	# li 	a2, 8								# Carrega o número de colunas/linhas
 	# mul	a1, a2, a2					# Calcula o tamanho da matriz
@@ -203,10 +235,10 @@ inicializa:
 	j menu
 
 menu:
-	addi t1, zero, 1
-	addi t2, zero, 2
-	addi t3, zero, 3
-	addi t4, zero, 4
+	addi t0, zero, 1	# T0 = 1
+	addi t1, zero, 2	# T1 = 2
+	addi t2, zero, 3	# T2 = 3
+	addi t3, zero, 4	# T3 = 4
 
 	la a0, msg_menu 	# Menu
 	li a7 4
@@ -216,10 +248,10 @@ menu:
 	ecall
 	
 	# Transições de menu
-	beq t1, a0, reiniciar_jogo
-	beq t2, a0, estado_matriz
-	beq t3, a0, nova_jogada
-	beq t4, a0, exit
+	beq t0, a0, reiniciar_jogo	# branch if equal to reiniciar_jogo
+	beq t1, a0, estado_matriz		# branch if equal to estado_matriz
+	beq t2, a0, nova_jogada			# branch if equal to nova_jogada
+	beq t3, a0, exit						# branch if equal to exit
 
 reiniciar_jogo:
 	# Reiniciar matrizes
@@ -240,7 +272,7 @@ estado_matriz:
 	la a0, msg_currentTiros
 	li a7, 4
 	ecall
-	addi a0, a1, 0
+	addi a0, a2, 0
 	li a7, 1
 	ecall
 	la a0, msg_enter
@@ -251,7 +283,7 @@ estado_matriz:
 	la a0, msg_currentAcertos
 	li a7 4
 	ecall
-	addi a0, a2, 0
+	addi a0, a3, 0
 	li a7, 1
 	ecall
 	la a0, msg_enter
@@ -262,7 +294,7 @@ estado_matriz:
 	la a0, msg_currentAfundados
 	li a7 4
 	ecall
-	addi a0, a3, 0
+	addi a0, a4, 0
 	li a7, 1
 	ecall
 	la a0, msg_enter
@@ -294,35 +326,6 @@ estado_matriz:
 	li a7 4
 	ecall
 
-	# Recordes
-	la a0, msg_recordes
-	li a7 4
-	ecall
-
-		# Recorde Tiros
-	la a0, msg_recordTiros
-	li a7 4
-	ecall
-	la a0, msg_enter
-	li a7 4
-	ecall
-	
-		# Recorde Acertos
-	la a0, msg_recordeAcertos
-	li a7 4
-	ecall
-	la a0, msg_enter
-	li a7 4
-	ecall
-
-		# Recorde Afundados
-	la a0, msg_recordeAfundados
-	li a7 4
-	ecall
-	la a0, msg_enter
-	li a7 4
-	ecall
-	
 	j menu
 	
 nova_jogada:
@@ -330,19 +333,19 @@ nova_jogada:
 	li a7, 4
 	ecall
 	
-	addi	a7, zero, 5 # Lê o valor da linha inserido pelo jogador
+	addi	a7, zero, 5 		# Lê o valor da linha inserido pelo jogador
 	ecall
-	
-	add 	s10, zero, a0 # Carrega o valor da linha em s10
+
+	add 	s10, zero, a0 	# S10 = Linha
 
 	la a0, msg_tiro_coluna
 	li a7, 4
 	ecall
-	
-	addi	a7, zero, 5 # Lê o valor da linha inserido pelo jogador
+
+	addi	a7, zero, 5 		# Lê o valor da coluna inserido pelo jogador
 	ecall
-	
-	add s11, zero, a0 # Carrega o valor da linha em s11
+
+	add s11, zero, a0 		# S11 =  Coluna
 	addi a1, a1, 1
 	
 	j menu
