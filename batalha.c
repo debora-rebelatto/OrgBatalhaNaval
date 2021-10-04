@@ -173,56 +173,6 @@ void newShot() {
   }
 }
 
-checkIfSunk() {
-
-  // check if ship is sunk
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 10; j++) {
-      if (shipMatrix[i][j] != 0) {
-        return false;
-      }
-    }
-  }
-
-
-
-
-  // check if the ship was sunk
-  // if (shipMatrix[linha][coluna] != 0) {
-  //   // check if the ship was sunk
-  //   int shipId = shipMatrix[linha][coluna];
-  //   int shipLength = 0;
-  //   int shipRow = 0;
-  //   int shipCol = 0;
-
-  //   // check if the ship is horizontal
-  //   for (int i = 0; i < 10; i++) {
-  //     if (shipMatrix[linha][i] == shipId) {
-  //       shipLength++;
-  //       shipCol = i;
-  //     }
-  //   }
-
-  //   if (shipLength == comprimento) {
-  //     // horizontal
-  //     for (int i = 0; i < comprimento; i++) {
-  //       shipMatrix[linha][shipCol + i] = 0;
-  //     }
-  //   } else {
-  //     // vertical
-  //     for (int i = 0; i < 10; i++) {
-  //       if (shipMatrix[i][coluna] == shipId) {
-  //         shipLength++;
-  //         shipRow = i;
-  //       }
-  //     }
-  //   }
-  // } else {
-  //   // ship was not sunk
-  //   afundados++;
-  // }
-}
-
 int main() {
   fillMatrixes();
 

@@ -45,7 +45,7 @@
 # T3 = Linha / Menu 4 / Mensagem Lateral
 # T4 = Coluna
 # T5 = Registrador para comparação
-# T6 = -1
+# T6 = Comparação/ -1
 
 # S0 = Matriz Batalha
 # S1 = Matriz Tiros
@@ -113,7 +113,6 @@ vertical:								.asciz 	"\nvertical\n"
 
 	.text
 main:
-	#j imprime_matriz
 	la a0, start_game 			# Carrega msg 
 	li a7, 4 								# Imprime msg
 	ecall
@@ -135,6 +134,7 @@ get_info_embarcacoes:
   la a0, msg_enter
   li a7, 4
   ecall
+  j loop
 
 #######################################################
 # função: loop
@@ -143,6 +143,7 @@ get_info_embarcacoes:
 #######################################################
 loop:
 	beq t0, a1, inicializa
+	j pergunta_disposicao
 
 perguntas:
 	pergunta_disposicao:
@@ -171,6 +172,9 @@ perguntas:
 		addi a7, zero, 5 				# Le valor inserido pelo usuario
 		ecall
 		add t3, zero, a0 				# T3 = Linha
+	
+		add t6, t2, t3
+		bgt t6, t5, erro_linha
 		bgt t3, t5, erro_linha 	# erro
 
 	pergunta_coluna:
@@ -180,6 +184,10 @@ perguntas:
 		addi a7, zero, 5 				# Le valor inserido pelo usuario
 		ecall	
 		add t4, zero, a0 				# T4 = Linha
+		
+		add t6, t2, t4
+		bgt t6, t5, erro_linha
+		
 		bgt t4, t5, erro_coluna	# erro
 
 #######################################################
@@ -201,9 +209,9 @@ navio_horizontal:
 	la a0, horizontal
 	li, a7, 4
 	ecall
-	
+
 	j atualiza
-	
+
 navio_vertical:
 	la a0, vertical
 	li, a7, 4
@@ -246,9 +254,11 @@ erro_disposicao:
 # saída:
 #######################################################
 inicializa:
-	addi 	a2, zero, 0					# A2 = Contador de tiros
-	addi 	a3, zero, 0					# A3 = Contador acertos
-	addi 	a4, zero, 0					# A4 = Contador afundados
+	addi 	a2, zero, 0						# A2 = Contador de tiros
+	addi 	a3, zero, 0						# A3 = Contador acertos
+	addi 	a4, zero, 0						# A4 = Contador afundados
+	addi 	s10, zero, 0
+	addi 	s11, zero, 0
 	j menu
 
 #######################################################
@@ -286,9 +296,32 @@ menu:
 # saída:
 #######################################################
 reiniciar_jogo:
-	# Reiniciar matrizes
-	jal get_info_embarcacoes
+	addi 	a0, zero, 0
+	addi 	a1, zero, 0
+	addi 	a2, zero, 0
+	addi 	a3, zero, 0
+	addi 	a4, zero, 0
+	addi 	a5, zero, 0
+	addi 	a6, zero, 0
+	addi 	a7, zero, 0
 
+	addi 	t0, zero, 0
+	addi 	t1, zero, 0
+	addi 	t2, zero, 0
+	addi 	t3, zero, 0
+	addi 	t4, zero, 0
+	addi 	t5, zero, 0
+	addi 	t6, zero, 0
+
+	addi 	s0, zero, 0
+	addi 	s1, zero, 0
+	addi 	s9, zero, 0
+	addi 	s10, zero, 0
+	addi 	s11, zero, 0
+	
+	# Reiniciar matrizes
+	j get_info_embarcacoes
+	
 #######################################################
 # função: imprime_matriz
 #		Imprime numeração e inicializa contadores
@@ -310,7 +343,7 @@ imprime_matriz:
 	la	s0, matriz_batalha	# S0 = Matriz Batalha
 	la	s1, matriz_tiros		# S1 = Matriz Tiros
 	mul	t3, t1, t1				# t3 = Calcula o tamanho da matriz
-	
+
 	la	a0, msg_cima			# Carrega a mensagem das marcações que vão na parte de cima da matriz
 	li	a7, 4							# Imprime a mensagem
 	ecall
@@ -531,10 +564,10 @@ nova_jogada:
 
 		addi	a7, zero, 5 		# Lê o valor da linha inserido pelo jogador
 		ecall
-	
+
 		add 	s10, zero, a0 	# S10 = Linha
 		bgt 		s10, t5, erro_linha 	# erro
-		
+
 	jogada_coluna:
 		la a0, msg_tiro_coluna
 		li a7, 4
@@ -543,13 +576,14 @@ nova_jogada:
 		addi	a7, zero, 5 		# Lê o valor da coluna inserido pelo jogador
 		ecall
 
-		add s11, zero, a0 		# S11 =  Coluna
-		bgt 		s11, t5, erro_linha 	# erro
+		add s11, zero, a0 			# S11 =  Coluna
+		bgt s11, t5, erro_linha 	# erro
 		j increase
-		
+
 	increase:
-			addi a2, a2, 1				# Atualiza contador de tiros
-			j menu
+		addi a2, a2, 1				# Atualiza contador de tiros
+
+		j menu
 
 erro_tiro_linha:
 	la a0, msg_erro_posicao
@@ -561,7 +595,6 @@ erro_tiro_coluna:
 	la a0, msg_erro_posicao
 	li a7, 4
 	ecall
-
 	j jogada_coluna
 
 #######################################################
