@@ -39,17 +39,17 @@
 # A6 = Recorde Acertos
 # A7 = valores temporários para leitura
 
-# T0 = Inicio Contador / Menu 1
-# T1 = Disposição / Menu 2
-# T2 = Comprimento / Menu 3
+# T0 = Inicio Contador / Menu 1 / Contador da matriz
+# T1 = Disposição / Menu 2 / Máximo Matriz
+# T2 = Comprimento / Menu 3 / Mensagem Lateral
 # T3 = Linha / Menu 4
 # T4 = Coluna
 # T5 = Registrador para comparação
 # T6 =
 
 # S0 = Matriz Batalha
-# S1 = 
-# S2 = 
+# S1 = Matriz Tiros
+# S2 = Tamanho matriz
 # S3 =
 # S4 = 
 # S5 =
@@ -251,10 +251,6 @@ inicializa:
 	addi 	a2, zero, 0					# A2 = Contador de tiros
 	addi 	a3, zero, 0					# A3 = Contador acertos
 	addi 	a4, zero, 0					# A4 = Contador afundados
-	la		s0, matriz_batalha	# S0 = Matriz
-	li 		s1, 8								# S1 = Número de colunas/linhas
-	mul		a2, s1, s1					# S2 ⇒ Tamanho da matriz
-
 	j menu
 
 #######################################################
@@ -295,14 +291,27 @@ reiniciar_jogo:
 	# Reiniciar matrizes
 	jal get_info_embarcacoes
 
+#######################################################
+# função: imprime_matriz
+#		Imprime numeração e inicializa contadores
+#	entradas:
+#		t0 = Contador da matriz
+#		t1 = Máximo matriz
+#		t2 = mensagem lateral
+#		s0 = Matriz Batalha
+#		s1 = Número de Coluna/Linhas
+#		s2 = Tamanho matriz
+#######################################################
 imprime_matriz:
 	la	a0, msg_cima			# Carrega a mensagem das marcações que vão na parte de cima da matriz
 	li	a7, 4							# Imprime a mensagem
-	ecall 
+	ecall
+
 	li	t0, 0					# Inicializa o contador que irá percorrer a matriz
 	li	t1, 9					# Inicializa o comparador de coluna para impressão da matriz
-	mul	a6, t1, t1		# Calcula o tamanho da matriz
-	la	s1, matriz_batalha	# Carrega o endereço da matriz campo em s1
+	mul	s2, t1, t1		# Calcula o tamanho da matriz
+	la	s0, matriz_batalha	# Carrega o endereço da matriz campo em s1
+	la	s1, matriz_tiros
 	la	t3, msg_lateral		# Carrega o endereço da mensagem que ira ser impressa na lateral da matriz para indicar a marcação das posições
 	j	imprimefirst
 
@@ -316,7 +325,7 @@ imprimefirst:
 	j 	imprime
 
 imprime:
-		beq t0, a6, standings			# Realiza a repetição da função conta em todos os indices da matriz
+		beq t0, s2, standings			# Realiza a repetição da função conta em todos os indices da matriz
 		beq	t0, t1, pula			# Se o contador for igual a 7, pula para a função pula
 
 		addi s0, s0, 4			# Acrescenta 4 no endereço da matriz, acessa o próximo número
