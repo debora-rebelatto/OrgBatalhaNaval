@@ -7,9 +7,9 @@
 # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Durante a interação do jogo (a cada jogada) deve ser possível:
-# - ❌ reiniciar o jogo;
-# - ❌ mostrar o estado atual da matriz de navios;
-# - ❌ fazer uma nova jogada
+# - �?� reiniciar o jogo;
+# - �?� mostrar o estado atual da matriz de navios;
+# - �?� fazer uma nova jogada
 
 # ✅  a string navios deve ser lida pela função insere_embarcacoes no início do jogo.
 
@@ -19,15 +19,15 @@
 # - ✅ terceiro valor é a linha inicial do navio e
 # - ✅ quarto valor é a coluna inicial do navio
 
-# ❌ A função insere_embarcacoes deve verificar a validade do posicionamento dos navios, gerando uma mensagem de erro para as seguintes situações:
+# �?� A função insere_embarcacoes deve verificar a validade do posicionamento dos navios, gerando uma mensagem de erro para as seguintes situações:
 # a) A posição do navio é inválida. Exemplo: 0 3 11, 7
 # b) O navio extrapola as dimensões da matriz. Exemplo: 0 4 9 2
 # c) Ocorre sobreposição nos navios. Exemplo 0 4 2 2 e 1 3 0 3
 
-# ❌ 1) a situação atual da matriz de jogo;
-# ❌ 2) a quantidade de tiros já disparados, a quantidade de tiros que acertaram o alvo, a quantidade de barcos já afundados e a
+# �?� 1) a situação atual da matriz de jogo;
+# �?� 2) a quantidade de tiros já disparados, a quantidade de tiros que acertaram o alvo, a quantidade de barcos já afundados e a
 #   posição do último tiro disparado e;
-# ❌ 3) os recordes do jogo que consiste no menor número de tiros para afundar todas as embarcações de algum jogo anterior.
+# �?� 3) os recordes do jogo que consiste no menor número de tiros para afundar todas as embarcações de algum jogo anterior.
 
 ####################################################
 # AO = valores temporários para leitura
@@ -41,15 +41,15 @@
 
 # T0 = Inicio Contador / Menu 1 / Contador da matriz
 # T1 = Disposição / Menu 2 / Máximo Matriz
-# T2 = Comprimento / Menu 3 / Mensagem Lateral
-# T3 = Linha / Menu 4
+# T2 = Comprimento / Menu 3 / Tamanho matriz
+# T3 = Linha / Menu 4 / Mensagem Lateral
 # T4 = Coluna
 # T5 = Registrador para comparação
-# T6 =
+# T6 = -1
 
 # S0 = Matriz Batalha
 # S1 = Matriz Tiros
-# S2 = Tamanho matriz
+# S2 =
 # S3 =
 # S4 = 
 # S5 =
@@ -113,6 +113,7 @@ vertical:								.asciz 	"\nvertical\n"
 
 	.text
 main:
+	#j imprime_matriz
 	la a0, start_game 			# Carrega msg 
 	li a7, 4 								# Imprime msg
 	ecall
@@ -242,9 +243,6 @@ erro_disposicao:
 #		a2 ⇒ Contador de Tiros
 #		a3 ⇒ Contador de Acertos
 #		a4 ⇒ Contador de Afundados
-#		s0 ⇒ Matriz de Batalha
-#		s1 ⇒ Número de Coluna/Linhas
-#		s2 ⇒ Tamanho da matriz
 # saída:
 #######################################################
 inicializa:
@@ -298,52 +296,89 @@ reiniciar_jogo:
 #		t0 = Contador da matriz
 #		t1 = Máximo matriz
 #		t2 = mensagem lateral
+#		t3 = Tamanho matriz
+#		t6 = -1
 #		s0 = Matriz Batalha
-#		s1 = Número de Coluna/Linhas
-#		s2 = Tamanho matriz
+#		s1 = Matriz tiros
 #######################################################
 imprime_matriz:
+	li	t0, 0							# Min Contador
+	li	t1, 10							# Max Contador
+	la	t2, msg_lateral		# t2 = Mensagem Lateral
+	li	t6, -1							# t6 = -1
+
+	la	s0, matriz_batalha	# S0 = Matriz Batalha
+	la	s1, matriz_tiros		# S1 = Matriz Tiros
+	mul	t3, t1, t1				# t3 = Calcula o tamanho da matriz
+	
 	la	a0, msg_cima			# Carrega a mensagem das marcações que vão na parte de cima da matriz
 	li	a7, 4							# Imprime a mensagem
 	ecall
 
-	li	t0, 0					# Inicializa o contador que irá percorrer a matriz
-	li	t1, 9					# Inicializa o comparador de coluna para impressão da matriz
-	mul	s2, t1, t1		# Calcula o tamanho da matriz
-	la	s0, matriz_batalha	# Carrega o endereço da matriz campo em s1
-	la	s1, matriz_tiros
-	la	t3, msg_lateral		# Carrega o endereço da mensagem que ira ser impressa na lateral da matriz para indicar a marcação das posições
-	j	imprimefirst
+	j	imprime_lateral
 
 # Função que imprime a linha marcadora das posições da matriz na parte de cima, e inicia com o 0 na lateral
-imprimefirst:
-	lw a0, 0(t3)		# Carrega o primeiro valor da mensagem que vai na lateral da matriz para marcar as posições
+imprime_lateral:
+	lw a0, 0(t2)		# Carrega o primeiro valor da mensagem que vai na lateral da matriz para marcar as posições
 	li a7, 1			# Imprime o valor
 	ecall
 
-	addi	t3, t3, 4		# Acessa o próximo valor da mensagem
+	la	a0, msg_espaco		# Carrega a mensagem espa�o, para dar um espa�amento entre a marca��o e a matriz
+	li	a7, 4			# Imprime a mensagem
+	ecall
+
+	addi	t2, t2, 4		# Acessa o próximo valor da mensagem
+
 	j 	imprime
 
 imprime:
-		beq t0, s2, standings			# Realiza a repetição da função conta em todos os indices da matriz
-		beq	t0, t1, pula			# Se o contador for igual a 7, pula para a função pula
+	beq t0, t3, standings			# Realiza a repetição da função conta em todos os indices da matriz
+	beq	t0, t1, pula						# Se o contador for igual a 7, pula para a função pula
 
-		addi s0, s0, 4			# Acrescenta 4 no endereço da matriz, acessa o próximo número
-		addi t0, t0, 1			# Acrescenta 1 no contador
+	lw  	a0, 0(s1)					# Carrega o valor da matriz
+
+	beq	a0, t6, arruma
+	li 	a7, 1							# Imprime o valor
+	ecall
+
+	la	a0, msg_espaco		# Carrega a mensagem espa�o, para dar um espa�amento entre a marca��o e a matriz
+	li	a7, 4							# Imprime a mensagem
+	ecall
+
+	addi s0, s0, 4			# Acrescenta 4 no endereço da matriz, acessa o próximo número
+	addi t0, t0, 1			# Acrescenta 1 no contador
+	j	imprime
+
+	arruma:
+		la	a0, msg_traco		# Carrega a mensagem tra�o, para ser impresso as posi��es que n�o foram abertas ainda
+		li	a7, 4			# Imprime a mensagem
+		ecall
+
+		la	a0, msg_espaco		# Carrega a mensagem espa�o, para dar um espa�amento entre a marca��o e a matriz
+		li	a7, 4			# Imprime a mensagem
+		ecall
+
+		addi	s0, s0, 4		# Acrescenta 4 no endere�o da matriz, acessa o pr�ximo n�mero
+		addi	t0, t0, 1		# Acrescenta 1 no contador
 		j	imprime
 		
-		pula:
-			la	a0, msg_enter		# Carrega a mensagem enter, para pular a linha
-			li	a7, 4						# Imprime a mensagem
-			ecall
-			addi	t1, t1, 8			# Acrescenta o número da próxima quebra de linha na matriz
+	pula:
+		la	a0, msg_enter		# Carrega a mensagem enter, para pular a linha
+		li	a7, 4						# Imprime a mensagem
+		ecall
 
-			lw  a0, 0(t3)			# Carrega o primeiro valor da mensagem que vai na lateral da matriz para marcar as posições
-			li 	a7, 1						# Imprime o valor
-			ecall
+		addi	t1, t1, 10			# Acrescenta o número da próxima quebra de linha na matriz
 
-			addi	t3, t3, 4			# Acessa o próximo valor da mensagem
-			j 	imprime
+		lw  a0, 0(t2)			# Carrega o primeiro valor da mensagem que vai na lateral da matriz para marcar as posições
+		li 	a7, 1						# Imprime o valor
+		ecall
+
+		la	a0, msg_espaco		# Carrega a mensagem espa�o, para dar um espa�amento entre a marca��o e a matriz
+		li	a7, 4			# Imprime a mensagem
+		ecall
+
+		addi	t2, t2, 4			# Acessa o próximo valor da mensagem
+		j 	imprime
 
 #######################################################
 #	função: estado_matriz
@@ -373,7 +408,7 @@ standings:
 	la a0, msg_enter
 	li a7 4
 	ecall
-	
+
 	# Current Game
 	la a0, msg_currentVoce
 	li a7, 4
@@ -487,26 +522,47 @@ standings:
 # saída:
 #######################################################
 nova_jogada:
-	la a0, msg_tiro_linha
-	li a7, 4
-	ecall
-
-	addi	a7, zero, 5 		# Lê o valor da linha inserido pelo jogador
-	ecall
-
-	add 	s10, zero, a0 	# S10 = Linha
-
-	la a0, msg_tiro_coluna
-	li a7, 4
-	ecall
-
-	addi	a7, zero, 5 		# Lê o valor da coluna inserido pelo jogador
-	ecall
-
-	add s11, zero, a0 		# S11 =  Coluna
-	addi a2, a2, 1				# Atualiza contador de tiros
+	addi t5, zero, 9
 	
-	j menu
+	jogada_linha:
+		la a0, msg_tiro_linha
+		li a7, 4
+		ecall
+
+		addi	a7, zero, 5 		# Lê o valor da linha inserido pelo jogador
+		ecall
+	
+		add 	s10, zero, a0 	# S10 = Linha
+		bgt 		s10, t5, erro_linha 	# erro
+		
+	jogada_coluna:
+		la a0, msg_tiro_coluna
+		li a7, 4
+		ecall
+
+		addi	a7, zero, 5 		# Lê o valor da coluna inserido pelo jogador
+		ecall
+
+		add s11, zero, a0 		# S11 =  Coluna
+		bgt 		s11, t5, erro_linha 	# erro
+		j increase
+		
+	increase:
+			addi a2, a2, 1				# Atualiza contador de tiros
+			j menu
+
+erro_tiro_linha:
+	la a0, msg_erro_posicao
+	li a7, 4
+	ecall
+	j jogada_linha
+
+erro_tiro_coluna:
+	la a0, msg_erro_posicao
+	li a7, 4
+	ecall
+
+	j jogada_coluna
 
 #######################################################
 # função: exit
