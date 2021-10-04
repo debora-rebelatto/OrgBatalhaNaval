@@ -556,7 +556,7 @@ standings:
 #######################################################
 nova_jogada:
 	addi t5, zero, 9
-	
+
 	jogada_linha:
 		la a0, msg_tiro_linha
 		li a7, 4
@@ -606,3 +606,4 @@ exit:
 	li a7, 4
 	ecall
 	nop
+
